@@ -108,6 +108,7 @@ class ItemsRepository(BaseRepository):  # noqa: WPS214
         favorited: Optional[str] = None,
         limit: int = 20,
         offset: int = 0,
+        title: Optional[str] = None,
         requested_user: Optional[User] = None,
     ) -> List[Item]:
         query_params: List[Union[str, int]] = []
@@ -129,6 +130,8 @@ class ItemsRepository(BaseRepository):  # noqa: WPS214
                 users,
             ).where(
                 users.id == items.seller_id,
+            ).where(
+                items.title == title,
             ).select(
                 users.username,
             ).as_(
