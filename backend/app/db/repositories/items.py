@@ -130,8 +130,6 @@ class ItemsRepository(BaseRepository):  # noqa: WPS214
                 users,
             ).where(
                 users.id == items.seller_id,
-            ).where(
-                title == items.title,
             ).select(
                 users.username,
             ).as_(
@@ -179,7 +177,20 @@ class ItemsRepository(BaseRepository):  # noqa: WPS214
                 ),
             )
             # fmt: on
-      
+
+        if title:
+            query_params.append(title)
+            query_params_count += 1
+
+            # fmt: off
+            query = query.where(
+                        items.title == Parameter(query_params_count),
+                    ).select(
+                        users.id,
+                    )
+                
+            
+
 
         if favorited:
             query_params.append(favorited)
