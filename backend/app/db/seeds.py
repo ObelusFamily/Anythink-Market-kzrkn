@@ -1,33 +1,50 @@
-#print('Please fill the seeds file')
-# Let’s start with 100 users, 100 products, and 100 comments.
-# connect to db
-# get settings of the app first
-import sys
-import pathlib
-from sqlalchemy import create_engine
-import pandas as pd 
+# just call the api to populate it.
+import requests
+import json 
+import random 
 
-sys.path.append(str(pathlib.Path(__file__).resolve().parents[2]))
+N = 100
 
-from app.core.config import get_app_settings
+for i in range(N):
+    seed = random.randint(0,10000)
+    user = {
+        'user': {
+        'username': "user"+str(seed),
+        'email': f"user_{seed}@email.com",
+        'password': "password",
+        },
+    }
 
+    r = requests.post('http://localhost:3000/api/users',json=user)
+    print(r.text)
 
-SETTINGS = get_app_settings()
-print(SETTINGS)
-
-DATABASE_URL = SETTINGS.database_url.replace("postgres://", "postgresql://")
-
-print(DATABASE_URL)
-
-target_metadata = None
-engine = create_engine(url=DATABASE_URL)
-
-from peewee import *
-
-pg_db = PostgresqlDatabase('anythink-market', user='postgres', password='postgres',
-                           host='postgres-python', port=5432)
+    #reply = json.loads(r.json())
+token = r.json()['user']['token']
 
 
+for i in range(N):
+    item = {
+  "item": {
+    "title": "title-"+str(seed)+"s-"+str(i),
+    "description": "string",
+    "body": "string",
+    "image": "string",
+    "tagList": []
+  }
+}
 
-print(pg_db.execute())
-# diy model stuff
+    r = requests.post('http://localhost:3000/api/items',json=item,headers={"Authorization":"Token "+token})
+    print(r.text)
+
+
+
+for i in range(N):
+    comment = {
+  "comment": {
+    "body": "Hello world!"
+  }
+}
+    slug = "title-"+str(seed)+"s-"+str(i)
+    r = requests.post(f'http://localhost:3000/api/items/{slug}/comments',json=comment,headers={"Authorization":"Token "+token})
+    print(r.text)
+
