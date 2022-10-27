@@ -179,17 +179,7 @@ class ItemsRepository(BaseRepository):  # noqa: WPS214
             # fmt: on
 
         if title:
-            query_params.append(title)
-            query_params_count += 1
-
-            # fmt: off
-            query = query.where(
-                        items.title == Parameter(query_params_count),
-                    ).select(
-                        users.id,
-                    )
-                
-            
+            query = query.where(items.title.ilike(f'%{title}%'))            
 
 
         if favorited:
@@ -216,7 +206,7 @@ class ItemsRepository(BaseRepository):  # noqa: WPS214
             Parameter(query_params_count + 2),
         )
         query_params.extend([limit, offset])
-
+        print(query.get_sql)
         items_rows = await self.connection.fetch(query.get_sql(), *query_params)
 
         return [
